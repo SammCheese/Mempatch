@@ -3,17 +3,22 @@
   "version": "1.0.0",
   "description": "Runtime memory patching for Node.js/Electron",
   "main": "index.js",
+  "types": "index.d.ts",
   "scripts": {
     "build": "node-gyp rebuild",
     "install": "node-gyp-build",
     "prebuild": "prebuildify --napi --strip"
   },
   "binary": {
-    "napi_versions": [8]
+    "napi_versions": [
+      8
+    ]
   },
   "files": [
-    "prebuilds/**",
-    "index.js"
+    "prebuilds/",
+    "index.js",
+    "index.d.ts",
+    "build/"
   ],
   "keywords": [
     "memory",
