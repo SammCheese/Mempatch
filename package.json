@@ -5,9 +5,9 @@
   "main": "index.js",
   "types": "index.d.ts",
   "scripts": {
-    "build": "node-gyp rebuild",
     "install": "node-gyp-build",
-    "prebuild": "prebuildify --napi --strip"
+    "prebuild": "prebuildify --napi --strip",
+    "build": "prebuildify --napi --strip"
   },
   "binary": {
     "napi_versions": [
@@ -18,7 +18,8 @@
     "prebuilds/",
     "index.js",
     "index.d.ts",
-    "build/"
+    "build/",
+    "src/"
   ],
   "keywords": [
     "memory",
@@ -41,5 +42,9 @@
   "devDependencies": {
     "node-gyp": "^11.2.0",
     "prebuildify": "^6.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/SammCheese/Mempatch.git"
   }
 }
