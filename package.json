@@ -1,0 +1,40 @@
+{
+  "name": "mempatch",
+  "version": "1.0.0",
+  "description": "Runtime memory patching for Node.js/Electron",
+  "main": "index.js",
+  "scripts": {
+    "build": "node-gyp rebuild",
+    "install": "node-gyp-build",
+    "prebuild": "prebuildify --napi --strip"
+  },
+  "binary": {
+    "napi_versions": [8]
+  },
+  "files": [
+    "prebuilds/**",
+    "index.js"
+  ],
+  "keywords": [
+    "memory",
+    "patch",
+    "signature",
+    "bytecode",
+    "reverse-engineering"
+  ],
+  "author": "SammCheese <sammy@sammcheese.net>",
+  "license": "MIT",
+  "packageManager": "pnpm@10.12.2",
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "gypfile": true,
+  "dependencies": {
+    "node-addon-api": "^8.4.0",
+    "node-gyp-build": "^4.8.4"
+  },
+  "devDependencies": {
+    "node-gyp": "^11.2.0",
+    "prebuildify": "^6.0.1"
+  }
+}
