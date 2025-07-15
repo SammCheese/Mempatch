@@ -10,6 +10,9 @@
     "build": "prebuildify --napi --strip"
   },
   "binary": {
+    "module_name": "mempatch",
+    "module_path": "prebuilds",
+    "host": "https://github.com/SammCheese/Mempatch/releases/download",
     "napi_versions": [
       8
     ]
