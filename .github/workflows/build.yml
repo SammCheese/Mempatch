@@ -23,8 +23,15 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
-      - name: Clean up other platform builds
-        run: rm -rf prebuilds/*
+      - name: Clean prebuilds folder
+        shell: bash
+        run: |
+          if [ -d prebuilds ]; then
+            echo "Removing existing prebuilds..."
+            rm -rf prebuilds/*
+          else
+            echo "No prebuilds directory found."
+          fi
 
       - name: Install dependencies
         run: npm install
