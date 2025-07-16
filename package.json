@@ -1,6 +1,6 @@
 {
   "name": "mempatch",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Runtime memory patching for Node.js/Electron",
   "main": "index.js",
   "types": "index.d.ts",
@@ -48,6 +48,6 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/SammCheese/Mempatch.git"
+    "url": "git+https://github.com/SammCheese/Mempatch.git"
   }
 }
