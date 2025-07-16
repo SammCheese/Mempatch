@@ -1,35 +1,100 @@
-name: Publish Release
+name: Build and Release
 
 on:
-  workflow_run:
-    workflows: ["Build Native Binaries"]
-    types:
-      - completed
+  push:
+    tags:
+      - 'v*'
 
 jobs:
-  release:
-    if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    runs-on: ubuntu-latest
+  build:
+    name: Build Binaries
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download artifacts
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: 'https://registry.npmjs.org/'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Clean prebuilds
+        shell: bash
+        run: |
+          if [ -d prebuilds ]; then rm -rf prebuilds/*; fi
+
+      - name: Run prebuildify
+        run: npm run prebuild
+
+      - name: Upload prebuilds
+        uses: actions/upload-artifact@v4
+        with:
+          name: prebuilds-${{ runner.os }}
+          path: prebuilds/
+
+  release:
+    name: Release Prebuilds
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: 'https://registry.npmjs.org/'
+
+      - name: Download all prebuilds
         uses: actions/download-artifact@v4
         with:
           path: ./artifacts
 
-      - name: Combine prebuilds
+      - name: Combine Prebuilds
         run: |
           mkdir -p prebuilds
-          cp -r ./artifacts/*/ prebuilds/
+          find artifacts -type f -name "mempatch.node" | while read f; do
+            platform=$(basename $(dirname "$f") | tr '[:upper:]' '[:lower:]')
+            arch_folder=$(basename $(dirname $(dirname "$f")))
+            target_dir="prebuilds/${platform}"
+            mkdir -p "$target_dir"
+            cp "$f" "$target_dir/mempatch.node"
+          done
+
+      - name: Copy and rename binaries for GitHub release
+        run: |
+          mkdir upload
+          find prebuilds -name "mempatch.node" | while read file; do
+            platform=$(basename $(dirname "$file"))
+            cp "$file" "upload/mempatch-${platform}.node"
+          done
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.event.workflow_run.head_branch }}
-          files: prebuilds/**/*
+          tag_name: ${{ github.ref_name }}
+          files: upload/*
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Setup npm authentication
+        run: echo "//registry.npmjs.org/:_authToken=\${{ secrets.NPM_TOKEN }}" > ~/.npmrc
+
+      - name: Confirm NPM Token validity
+        run: npm whoami
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Publish to npm
-        run: npm publish --access public
+        run: npm publish --provenance --verbose
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
